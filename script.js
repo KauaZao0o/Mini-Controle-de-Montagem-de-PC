@@ -1,60 +1,82 @@
-// --- Dados do projeto ---
-const sockets = ['775','1156','1155','1150','1151','1700','1200'];
-const cpusBySocket = {
-'775':['Core2Duo','Dual Core','Core2Quad'],
-'1156':['Core i3','Core i5','Core i7'],
-'1155':['Core i3','Core i5','Core i7'],
-'1150':['Core i3','Core i5','Core i7'],
-'1151':['Core i3','Core i5','Core i7'],
-'1200':['Core i3','Core i5','Core i7','Core i9'],
-'1700':['Ryzen 3','Ryzen 5','Ryzen 7','Ryzen 9']
-};
+document.getElementById('download-report').addEventListener('click', () => {
+  const builds = loadSaved();
 
+  if (builds.length === 0) {
+    alert('Nenhuma montagem salva para exportar.');
+    return;
+  }
 
-const freqByCpu = {
-'Core2Duo':['1.6','1.8','2.0','2.4','2.66'],
-'Dual Core':['1.8','2.0','2.2','2.6'],
-'Core2Quad':['2.4','2.66','2.83'],
-'Core i3':['2.4','2.6','3.0'],
-'Core i5':['2.6','2.8','3.0','3.4'],
-'Core i7':['2.8','3.0','3.6','4.0'],
-'Core i9':['3.1','3.4','3.8','4.2'],
-'Ryzen 3':['2.6','3.0','3.6'],
-'Ryzen 5':['2.8','3.2','3.6','4.0'],
-'Ryzen 7':['3.0','3.6','4.0','4.2'],
-'Ryzen 9':['3.4','3.8','4.2','4.6']
-};
+  const header = [
+    "Carimbo de data/hora",
+    "Colaborador",
+    "Placa Mãe",
+    "Processador",
+    "Memoria Ram",
+    "HD",
+    "Processador",
+    "Memoria Ram",
+    "HD",
+    "Processador",
+    "Memoria Ram",
+    "HD",
+    "Processador",
+    "Memoria Ram",
+    "HD",
+    "Processador",
+    "Memoria Ram",
+    "HD"
+  ];
 
+  // Agrupar por ID (colaborador)
+  const grouped = {};
 
-const memTypesBySocket = {
-'775':['DDR2','DDR3'],
-// sockets modernos => DDR4 (simplificação)
-'default':['DDR4']
-};
+  builds.forEach(b => {
+    if (!grouped[b.id]) grouped[b.id] = [];
+    grouped[b.id].push(b);
+  });
 
+  const rows = [];
 
-const hdOptions = ['160GB','250GB','320GB','500GB'];
-const osOptions = ['Windows 10','Windows 11'];
+  for (const id in grouped) {
+    const registros = grouped[id];
+    const first = registros[0];
+    const timestamp = new Date(first.timestamp).toLocaleString("pt-BR", {
+      timeZone: "America/Sao_Paulo"
+    });
 
+    const row = [
+      `"${timestamp}"`,
+      `"${id}"`,
+      `"${first.socket || ""}"`
+    ];
 
-// Estado da montagem
-let build = {
-id:null, socket:null, cpu:null, freq:null, memType:null, memConfig:null, hd:null, os:null
-};
+    // Até 5 builds por colaborador (como colunas)
+    for (let i = 0; i < 5; i++) {
+      const build = registros[i];
+      if (build) {
+        row.push(
+          `"${build.cpu || ""}"`,
+          `"${build.memConfig || ""}"`,
+          `"${build.hd || ""}"`
+        );
+      } else {
+        row.push("", "", "");
+      }
+    }
 
+    rows.push(row);
+  }
 
-// Helper: localStorage para armazenar IDs e builds
-const STORE_KEY = 'pc-montagens';
-function loadSaved(){
-try{const raw = localStorage.getItem(STORE_KEY); return raw?JSON.parse(raw):[] }catch(e){return[]}
-}
-function saveBuild(b){const arr = loadSaved(); arr.push(b); localStorage.setItem(STORE_KEY, JSON.stringify(arr));}
-function hasId(id){return loadSaved().some(x=>x.id===id)}
+  // Gera o CSV final
+  const csvContent = [header, ...rows].map(r => r.join(",")).join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
 
-
-// UI referências
-const savedCount = document.getElementById('saved-count');
-function updateSavedCount(){savedCount.textContent = loadSaved().length}
-updateSavedCount();
-
-    // Dica: clique direto nas opções — o fluxo é com "um toque". O botão "Confirmar..." avança quando tudo estiver selecionado.
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "montagens.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
