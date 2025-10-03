@@ -1,124 +1,22 @@
-<!doctype html>
-<html lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mini - Controle de Montagem de PC</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Usuário</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app" role="application">
-    <h1>Mini - Controle de Montagem de PC</h1>
-    <div class="muted">Fluxo com um toque — clique nas opções para avançar. IDs únicos (salvos no navegador).</div>
-
-    <!-- Pesquisa por ID -->
-    <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <input id="search-id" type="text" placeholder="Pesquisar por ID (ex: PC001)" style="padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit;flex:1;min-width:180px" />
-      <button id="search-btn" class="big" style="padding:10px 14px">Pesquisar</button>
-      <div id="search-result" class="report" style="min-width:220px;display:none"></div>
-    </div>
-
-    <div id="wizard">
-      <!-- Step 1: ID e Placa Mãe -->
-      <div class="step active" id="step-1">
-        <div class="grid">
-          <label>ID do PC (único):
-            <input id="pc-id" type="text" placeholder="Ex: PC001" />
-          </label>
-          <div>
-            <div class="small muted">Escolha a placa-mãe (socket):</div>
-            <div id="motherboard-options" class="buttons"></div>
-          </div>
-          <div class="controls">
-            <div class="small">IDs salvos: <span id="saved-count">0</span></div>
-            <div>
-              <button id="step1-next" class="big">Confirmar e escolher processador</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 2: Processador -->
-      <div class="step" id="step-2">
-        <div class="grid">
-          <div class="small muted">Processadores disponíveis para socket: <strong id="current-socket"></strong></div>
-          <div id="cpu-options" class="buttons"></div>
-          <div class="controls">
-            <button id="step2-back" class="big">Voltar</button>
-            <button id="step2-next" class="big">Confirmar e escolher frequência</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 3: Frequência -->
-      <div class="step" id="step-3">
-        <div class="grid">
-          <div class="small muted">Escolha a frequência (GHz):</div>
-          <div id="freq-options" class="buttons"></div>
-          <div class="controls">
-            <button id="step3-back" class="big">Voltar</button>
-            <button id="step3-next" class="big">Confirmar e escolher memória</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 4: Memória -->
-      <div class="step" id="step-4">
-        <div class="grid">
-          <div class="small muted">Tipo de memória disponível para o socket <strong id="mem-socket"></strong>:</div>
-          <div id="memtype-options" class="buttons"></div>
-
-          <div id="mem-config" class="hidden">
-            <div class="small muted">Configuração de pentes (total definido automaticamente para alguns processadores):</div>
-            <div id="memstick-options" class="buttons"></div>
-          </div>
-
-          <div class="controls">
-            <button id="step4-back" class="big">Voltar</button>
-            <button id="step4-next" class="big">Confirmar e escolher HD</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 5: HD -->
-      <div class="step" id="step-5">
-        <div class="grid">
-          <div class="small muted">Escolha o HD:</div>
-          <div id="hd-options" class="buttons"></div>
-          <div class="controls">
-            <button id="step5-back" class="big">Voltar</button>
-            <button id="step5-next" class="big">Confirmar e escolher SO</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 6: Sistema Operacional -->
-      <div class="step" id="step-6">
-        <div class="grid">
-          <div class="small muted">Escolha o Sistema Operacional:</div>
-          <div id="os-options" class="buttons"></div>
-          <div class="controls">
-            <button id="step6-back" class="big">Voltar</button>
-            <button id="step6-next" class="big">Finalizar e mostrar relatório</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Report -->
-      <div class="step" id="step-7">
-        <div class="grid">
-          <h2>Relatório da montagem</h2>
-          <div id="report" class="report"></div>
-          <div class="controls">
-            <button id="new-build" class="big">Nova montagem</button>
-            <button id="download-report" class="big">Download CSV</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
+  <div class="login-container">
+    <h2>Login</h2>
+    <select id="usuario">
+      <option value="" disabled selected>Selecione o usuário</option>
+      <option value="admin">ADMINISTRADOR</option>
+      <option value="teste">TESTE</option>
+    </select>
+    <button id="login-btn" onclick="login()">Entrar</button>
   </div>
-  <script src="script.js"></script>
   
+  <script src="script.js"></script>
 </body>
 </html>
