@@ -1,0 +1,277 @@
+    function login() {
+  const usuario = document.getElementById("usuario").value;
+
+  // Lista de usuários permitidos
+  const usuariosPermitidos = ["admin", "teste"];
+
+  if (usuariosPermitidos.includes(usuario)) {
+    window.location.href = "pages/painel.html"; // redireciona para outra página
+  } else {
+    alert("Selecione um usuário válido!");
+  }
+}
+
+// Isso daqui permite o enter ao realizar o login
+document.getElementById("usuario").addEventListener("keypress", function(event) {
+  if (event.key === "Enter") {
+    login();
+  }
+});
+    
+    // Funções específicas para a página de login/gerenciamento
+    function loadPCList() {
+      const builds = loadSaved();
+      const container = document.getElementById('pc-list');
+      const searchTerm = document.getElementById('search-pc').value.toLowerCase();
+      
+      if (builds.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 20px;">Nenhum PC cadastrado</div>';
+        document.getElementById('total-pcs').textContent = '0';
+        return;
+      }
+      
+      document.getElementById('total-pcs').textContent = builds.length;
+      
+      const filteredBuilds = builds.filter(build => 
+        build.id.toLowerCase().includes(searchTerm) ||
+        build.socket.toLowerCase().includes(searchTerm) ||
+        build.cpu.toLowerCase().includes(searchTerm) ||
+        build.memType.toLowerCase().includes(searchTerm)
+      );
+      
+      if (filteredBuilds.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 20px;">Nenhum PC encontrado</div>';
+        return;
+      }
+      
+      container.innerHTML = filteredBuilds.map(build => `
+        <div class="pc-item" style="background: #0b1220; margin-bottom: 10px; padding: 12px; border-radius: 8px; border: 1px solid #333;">
+          <div style="display: flex; justify-content: between; align-items: center;">
+            <div style="flex: 1;">
+              <strong style="color: #10b981;">${build.id}</strong>
+              <div style="font-size: 12px; color: #9ca3af;">
+                ${build.socket} | ${build.cpu} @ ${build.freq}GHz | ${build.memType} | ${build.hd}
+              </div>
+              <div style="font-size: 11px; color: #6b7280;">
+                ${new Date(build.timestamp).toLocaleString('pt-BR')}
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button onclick="editPC('${build.id}')" style="padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Editar</button>
+              <button onclick="deletePC('${build.id}')" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Excluir</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function editPC(pcId) {
+      const builds = loadSaved();
+      const build = builds.find(b => b.id === pcId);
+      
+      if (!build) {
+        alert('PC não encontrado!');
+        return;
+      }
+      
+      const modal = document.getElementById('edit-modal');
+      const form = document.getElementById('edit-form');
+      
+      // Preenche o formulário com os dados atuais
+      form.innerHTML = `
+        <input type="hidden" id="edit-pc-id" value="${build.id}">
+        
+        <label style="display: block; margin-bottom: 8px; color: #e6eef6;">
+          ID do PC:
+          <input type="text" id="edit-id" value="${build.id}" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #333; background: #111827; color: #fff; margin-top: 4px;">
+        </label>
+        
+        <label style="display: block; margin-bottom: 8px; color: #e6eef6;">
+          Socket:
+          <select id="edit-socket" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #333; background: #111827; color: #fff; margin-top: 4px;">
+            ${sockets.map(s => `<option value="${s}" ${s === build.socket ? 'selected' : ''}>${s}</option>`).join('')}
+          </select>
+        </label>
+        
+        <label style="display: block; margin-bottom: 8px; color: #e6eef6;">
+          Processador:
+          <select id="edit-cpu" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #333; background: #111827; color: #fff; margin-top: 4px;">
+            <!-- Será preenchido dinamicamente baseado no socket -->
+          </select>
+        </label>
+        
+        <label style="display: block; margin-bottom: 8px; color: #e6eef6;">
+          Frequência (GHz):
+          <select id="edit-freq" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #333; background: #111827; color: #fff; margin-top: 4px;">
+            <!-- Será preenchido dinamicamente baseado no CPU -->
+          </select>
+        </label>
+        
+        <label style="display: block; margin-bottom: 8px; color: #e6eef6;">
+          Tipo de Memória:
+          <select id="edit-memtype" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #333; background: #111827; color: #fff; margin-top: 4px;">
+            ${(memTypesBySocket[build.socket] || memTypesBySocket['default']).map(m => `<option value="${m}" ${m === build.memType ? 'selected' : ''}>${m}</option>`).join('')}
+          </select>
+        </label>
+        
+        <label style="display: block; margin-bottom: 8px; color: #e6eef6;">
+          Configuração de Memória:
+          <select id="edit-memconfig" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #333; background: #111827; color: #fff; margin-top: 4px;">
+            <!-- Será preenchido dinamicamente -->
+          </select>
+        </label>
+        
+        <label style="display: block; margin-bottom: 8px; color: #e6eef6;">
+          HD:
+          <select id="edit-hd" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #333; background: #111827; color: #fff; margin-top: 4px;">
+            ${hdOptions.map(h => `<option value="${h}" ${h === build.hd ? 'selected' : ''}>${h}</option>`).join('')}
+          </select>
+        </label>
+        
+        <label style="display: block; margin-bottom: 8px; color: #e6eef6;">
+          Sistema Operacional:
+          <select id="edit-os" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #333; background: #111827; color: #fff; margin-top: 4px;">
+            ${osOptions.map(o => `<option value="${o}" ${o === build.os ? 'selected' : ''}>${o}</option>`).join('')}
+          </select>
+        </label>
+      `;
+      
+      // Preenche as opções baseadas no socket selecionado
+      populateEditCPUOptions(build.socket, build.cpu);
+      
+      // Event listeners para atualização dinâmica
+      document.getElementById('edit-socket').addEventListener('change', function() {
+        populateEditCPUOptions(this.value, '');
+      });
+      
+      document.getElementById('edit-cpu').addEventListener('change', function() {
+        populateEditFreqOptions(this.value, '');
+      });
+      
+      modal.style.display = 'flex';
+    }
+
+    function populateEditCPUOptions(socket, selectedCPU) {
+      const cpuSelect = document.getElementById('edit-cpu');
+      const cpus = cpusBySocket[socket] || ['Generic CPU'];
+      
+      cpuSelect.innerHTML = cpus.map(cpu => 
+        `<option value="${cpu}" ${cpu === selectedCPU ? 'selected' : ''}>${cpu}</option>`
+      ).join('');
+      
+      // Dispara o evento para preencher as frequências
+      populateEditFreqOptions(selectedCPU || cpus[0], '');
+    }
+
+    function populateEditFreqOptions(cpu, selectedFreq) {
+      const freqSelect = document.getElementById('edit-freq');
+      const freqs = freqByCpu[cpu] || ['2.0','3.0'];
+      
+      freqSelect.innerHTML = freqs.map(freq => 
+        `<option value="${freq}" ${freq === selectedFreq ? 'selected' : ''}>${freq} GHz</option>`
+      ).join('');
+      
+      // Dispara o evento para preencher as configurações de memória
+      populateEditMemConfigOptions(cpu, '');
+    }
+
+    function populateEditMemConfigOptions(cpu, selectedConfig) {
+      const memConfigSelect = document.getElementById('edit-memconfig');
+      const legacy = ['Core2Duo','Dual Core','Core2Quad'];
+      let configs = [];
+      
+      if (legacy.includes(cpu)) {
+        configs = ['2x2GB (total 4GB)','4x1GB (total 4GB)'];
+      } else {
+        configs = ['1x8GB (8GB)','2x8GB (16GB)','2x16GB (32GB)'];
+      }
+      
+      memConfigSelect.innerHTML = configs.map(config => 
+        `<option value="${config}" ${config === selectedConfig ? 'selected' : ''}>${config}</option>`
+      ).join('');
+    }
+
+    function saveEdit() {
+      const originalId = document.getElementById('edit-pc-id').value;
+      const newId = document.getElementById('edit-id').value.trim();
+      const socket = document.getElementById('edit-socket').value;
+      const cpu = document.getElementById('edit-cpu').value;
+      const freq = document.getElementById('edit-freq').value;
+      const memType = document.getElementById('edit-memtype').value;
+      const memConfig = document.getElementById('edit-memconfig').value;
+      const hd = document.getElementById('edit-hd').value;
+      const os = document.getElementById('edit-os').value;
+      
+      if (!newId || !socket || !cpu || !freq || !memType || !memConfig || !hd || !os) {
+        alert('Preencha todos os campos!');
+        return;
+      }
+      
+      let builds = loadSaved();
+      const buildIndex = builds.findIndex(b => b.id === originalId);
+      
+      if (buildIndex === -1) {
+        alert('PC não encontrado!');
+        return;
+      }
+      
+      // Verifica se o novo ID já existe (e não é o próprio PC sendo editado)
+      if (newId !== originalId && builds.some(b => b.id === newId)) {
+        alert('Já existe um PC com este ID!');
+        return;
+      }
+      
+      // Atualiza o build
+      builds[buildIndex] = {
+        ...builds[buildIndex],
+        id: newId,
+        socket,
+        cpu,
+        freq,
+        memType,
+        memConfig,
+        hd,
+        os,
+        timestamp: builds[buildIndex].timestamp // Mantém o timestamp original
+      };
+      
+      // Salva no localStorage
+      localStorage.setItem(STORE_KEY, JSON.stringify(builds));
+      
+      // Fecha o modal e atualiza a lista
+      closeEditModal();
+      loadPCList();
+      alert('PC atualizado com sucesso!');
+    }
+
+    function deletePC(pcId) {
+      if (!confirm(`Tem certeza que deseja excluir o PC ${pcId}?`)) {
+        return;
+      }
+      
+      let builds = loadSaved();
+      builds = builds.filter(b => b.id !== pcId);
+      
+      localStorage.setItem(STORE_KEY, JSON.stringify(builds));
+      loadPCList();
+      alert('PC excluído com sucesso!');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').style.display = 'none';
+    }
+
+    // Carrega a lista quando a página é carregada
+    document.addEventListener('DOMContentLoaded', function() {
+      loadPCList();
+      
+      // Event listener para a pesquisa
+      document.getElementById('search-pc').addEventListener('input', loadPCList);
+      
+      // Fecha o modal ao clicar fora
+      document.getElementById('edit-modal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeEditModal();
+        }
+      });
+    });
