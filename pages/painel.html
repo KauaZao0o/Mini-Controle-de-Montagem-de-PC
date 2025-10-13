@@ -4,28 +4,26 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Mini - Controle de Montagem de PC</title>
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
   <div class="app" role="application">
-    <!-- Cabeçalho com título e botão de voltar -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="header">
       <h1>Mini - Controle de Montagem de PC</h1>
-      <button id="back-to-index" class="big" style="padding: 10px 16px; background: #6b7280;">
-        ← Voltar
-      </button>
+      <button id="back-to-index" class="big">← Voltar</button>
     </div>
     
     <div class="muted">Fluxo com um toque — clique nas opções para avançar. IDs únicos (salvos no navegador).</div>
 
     <!-- Pesquisa por ID -->
-    <div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <input id="search-id" type="text" placeholder="Pesquisar por ID (ex: PC001)" style="padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit;flex:1;min-width:180px" />
-      <button id="search-btn" class="big" style="padding:10px 14px">Pesquisar</button>
-      <div id="search-result" class="report" style="min-width:220px;display:none"></div>
+    <div class="search-container">
+      <input id="search-id" type="text" placeholder="Pesquisar por ID (ex: PC001)" />
+      <button id="search-btn" class="big">Pesquisar</button>
+      <div id="search-result" class="report" style="display:none"></div>
     </div>
 
     <div id="wizard">
+      <!-- Steps 1-6 permanecem iguais -->
       <!-- Step 1: ID e Placa Mãe -->
       <div class="step active" id="step-1">
         <div class="grid">
@@ -117,20 +115,146 @@
           <h2>Relatório da montagem</h2>
           <div id="report" class="report"></div>
           <div class="controls">
+            <button id="checklist-btn" class="big">Checklist</button>
             <button id="new-build" class="big">Nova montagem</button>
             <button id="download-report" class="big">Download CSV</button>
           </div>
         </div>
       </div>
 
+<!-- Checklist -->
+<div class="step" id="step-8">
+  <div class="grid">
+    <h2>Checklist - MONTAGEM DE CPU</h2>
+    
+    <!-- Tabela de Triagem -->
+    <div class="checklist-section">
+      <h3>TRIAGEM</h3>
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>S</th>
+            <th>N</th>
+            <th>EM FALTA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>FONTE</td>
+            <td><input type="radio" name="fonte" value="S"></td>
+            <td><input type="radio" name="fonte" value="N"></td>
+            <td><input type="radio" name="fonte" value="EM_FALTA" disabled></td>
+          </tr>
+          <tr>
+            <td>COOLER TRAV.</td>
+            <td><input type="radio" name="cooler" value="S"></td>
+            <td><input type="radio" name="cooler" value="N"></td>
+            <td><input type="radio" name="cooler" value="EM_FALTA" disabled></td>
+          </tr>
+          <tr>
+            <td>TRO. PAS. TÉRM.</td>
+            <td><input type="radio" name="pasta" value="S"></td>
+            <td><input type="radio" name="pasta" value="N"></td>
+            <td><input type="radio" name="pasta" value="EM_FALTA" disabled></td>
+          </tr>
+          <tr>
+            <td>MEMÓRIA</td>
+            <td><input type="radio" name="memoria" value="S"></td>
+            <td><input type="radio" name="memoria" value="N"></td>
+            <td><input type="radio" name="memoria" value="EM_FALTA" disabled></td>
+          </tr>
+          <tr>
+            <td>LIMP. INTERNA</td>
+            <td><input type="radio" name="limpeza" value="S"></td>
+            <td><input type="radio" name="limpeza" value="N"></td>
+            <td><input type="radio" name="limpeza" value="EM_FALTA" disabled></td>
+          </tr>
+          <tr>
+            <td colspan="4" style="height: 10px; background: #f8f9fa;"></td>
+          </tr>
+          <tr>
+            <td colspan="4" style="height: 10px; background: #f8f9fa;"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tabela de Montagem -->
+    <div class="checklist-section">
+      <h3>MONTAGEM</h3>
+      <table class="checklist-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>S</th>
+            <th>N</th>
+            <th>EM FALTA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>BATERIA BIOS</td>
+            <td><input type="radio" name="bateria" value="S"></td>
+            <td><input type="radio" name="bateria" value="N"></td>
+            <td><input type="radio" name="bateria" value="EM_FALTA" disabled></td>
+          </tr>
+          <tr>
+            <td>CONFIG. BIOS</td>
+            <td><input type="radio" name="config_bios" value="S"></td>
+            <td><input type="radio" name="config_bios" value="N"></td>
+            <td><input type="radio" name="config_bios" value="EM_FALTA" disabled></td>
+          </tr>
+          <tr>
+            <td>SUBIR SISTEMA</td>
+            <td><input type="radio" name="sistema" value="S"></td>
+            <td><input type="radio" name="sistema" value="N"></td>
+            <td><input type="radio" name="sistema" value="EM_FALTA" disabled></td>
+          </tr>
+          <tr>
+            <td>ATUA. DRIVERS</td>
+            <td><input type="radio" name="drivers" value="S"></td>
+            <td><input type="radio" name="drivers" value="N"></td>
+            <td><input type="radio" name="drivers" value="EM_FALTA" disabled></td>
+          </tr>
+          <tr>
+            <td>TRAVA HD</td>
+            <td><input type="radio" name="trava_hd" value="S"></td>
+            <td><input type="radio" name="trava_hd" value="N"></td>
+            <td><input type="radio" name="trava_hd" value="EM_FALTA" disabled></td>
+          </tr>
+          <tr>
+            <td>AUDIO</td>
+            <td><input type="radio" name="audio" value="S"></td>
+            <td><input type="radio" name="audio" value="N"></td>
+            <td><input type="radio" name="audio" value="EM_FALTA" disabled></td>
+          </tr>
+          <tr>
+            <td>REDE</td>
+            <td><input type="radio" name="rede" value="S"></td>
+            <td><input type="radio" name="rede" value="N"></td>
+            <td><input type="radio" name="rede" value="EM_FALTA" disabled></td>
+          </tr>
+          <tr>
+            <td>DRIVER DVD</td>
+            <td><input type="radio" name="dvd" value="S"></td>
+            <td><input type="radio" name="dvd" value="N"></td>
+            <td><input type="radio" name="dvd" value="EM_FALTA" disabled></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="controls">
+      <button id="checklist-back" class="big">Voltar ao Relatório</button>
+      <button id="save-checklist" class="big">Salvar Checklist</button>
+      <button id="print-checklist" class="big">Imprimir Checklist</button>
     </div>
   </div>
-  <script src="../script.js"></script>
-  <script>
-    // Adiciona funcionalidade ao botão de voltar
-    document.getElementById('back-to-index').addEventListener('click', function() {
-      window.location.href = '../index.html';
-    });
-  </script>
+</div>
+  
+  <script src="../js/data.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/panel.js"></script>
 </body>
 </html>
